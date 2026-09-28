@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { useCanvasStore } from '../../store/canvas.store';
 import { SidebarLibrary } from '../../features/canvas/components/SidebarLibrary';
 import { CanvasWorkspace } from '../../features/canvas/components/Canvas';
+import { EditorPanel } from '../../features/canvas/components/EditorPanel';
 
 export const AppLayout = () => {
   const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
@@ -39,7 +40,14 @@ export const AppLayout = () => {
         <main className="flex-1 h-full relative bg-slate-50 overflow-hidden">
           <CanvasWorkspace />
         </main>
-     
+      {/* Right Sidebar: Editor Panel (Shown as overlay if a node is selected on mobile, or fixed column on desktop) */}
+        <div className={`
+          absolute lg:relative z-30 inset-y-0 right-0 bg-white transition-transform duration-300 ease-in-out h-full
+          ${selectedNode ? 'translate-x-0 shadow-2xl' : 'translate-x-full lg:translate-x-0'}
+          w-80 flex-shrink-0 border-l border-slate-200
+        `}>
+          <EditorPanel />
+        </div>
         
 
       </div>
