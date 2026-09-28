@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Header } from './Header';
 import { useCanvasStore } from '../../store/canvas.store';
 import { SidebarLibrary } from '../../features/canvas/components/SidebarLibrary';
+import { CanvasWorkspace } from '../../features/canvas/components/Canvas';
 
 export const AppLayout = () => {
   const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
@@ -34,7 +35,10 @@ export const AppLayout = () => {
 `}>
   <SidebarLibrary />
 </div>
-
+   {/* Center: Canvas Workspace (Takes 100% available space) */}
+        <main className="flex-1 h-full relative bg-slate-50 overflow-hidden">
+          <CanvasWorkspace />
+        </main>
      
         
 
