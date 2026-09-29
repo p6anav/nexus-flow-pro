@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { JsonImportModal } from '../../features/canvas/components/JsonImportModal';
 
 
 export const Header = () => {
@@ -36,7 +37,7 @@ export const Header = () => {
           <span className="sm:hidden">Import</span>
         </button>
 
-       
+        <JsonImportModal isOpen={isJsonModalOpen} onClose={() => setIsJsonModalOpen(false)} />
       </div>
     </header>
   );
