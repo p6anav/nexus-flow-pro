@@ -1,20 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { useCanvasStore } from '../../../store/canvas.store';
 import { useWorkflowStore } from '../../../store/workflow.store';
 
 export const EditorPanel = () => {
   const { selectedNode, updateNodeConfig, updateNodeLabel, setSelectedNode } = useCanvasStore();
   const { saveAsTemplate } = useWorkflowStore();
-
-  const [label, setLabel] = useState('');
-  const [config, setConfig] = useState<Record<string, any>>({});
-
-  useEffect(() => {
-    if (selectedNode) {
-      setLabel(selectedNode.data.label || '');
-      setConfig(selectedNode.data.config || {});
-    }
-  }, [selectedNode]);
 
   if (!selectedNode) {
     return (
@@ -24,14 +13,15 @@ export const EditorPanel = () => {
     );
   }
 
+  const label = selectedNode.data.label;
+  const config = selectedNode.data.config;
+
   const handleLabelChange = (newLabel: string) => {
-    setLabel(newLabel);
     updateNodeLabel(selectedNode.id, newLabel);
   };
 
-  const handleConfigChange = (key: string, value: any) => {
+  const handleConfigChange = (key: string, value: string) => {
     const updatedConfig = { ...config, [key]: value };
-    setConfig(updatedConfig);
     updateNodeConfig(selectedNode.id, updatedConfig);
   };
 

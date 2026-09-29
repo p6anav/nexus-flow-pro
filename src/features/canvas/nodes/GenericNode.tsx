@@ -1,17 +1,12 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
+import type { MouseEvent } from 'react';
 import { Handle, Position } from 'reactflow';
 import { useCanvasStore } from '../../../store/canvas.store';
-
-// Define explicit custom node data structure
-interface NodeData {
-  label: string;
-  type: string;
-  config: Record<string, any>;
-}
+import type { WorkflowNodeData } from '../../../types/workflow';
 
 interface CustomNodeProps {
   id: string;
-  data: NodeData;
+  data: WorkflowNodeData;
   selected?: boolean;
 }
 
@@ -19,7 +14,7 @@ export const GenericNode = memo(({ id, data }: CustomNodeProps) => {
   const setSelectedNode = useCanvasStore((state) => state.setSelectedNode);
   const nodes = useCanvasStore((state) => state.nodes);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: MouseEvent) => {
     e.stopPropagation();
     const currentNode = nodes.find((n) => n.id === id);
     if (currentNode) setSelectedNode(currentNode);

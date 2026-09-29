@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Header } from './Header';
 import { useCanvasStore } from '../../store/canvas.store';
 import { SidebarLibrary } from '../../features/canvas/components/SidebarLibrary';

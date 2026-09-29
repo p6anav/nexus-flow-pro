@@ -1,75 +1,90 @@
-# React + TypeScript + Vite
+# NexusFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+NexusFlow is a small ReactFlow-based workflow editor for creating configurable nodes, editing their properties, and saving reusable node templates in the browser.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20.19+ or 22.12+
+- npm
 
-## React Compiler
+## Run locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Vite prints the local URL after the development server starts.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Use the editor
 
-export default defineConfig([
-  globalIgnores(['dist']),
+- **Create nodes:** Select **Import JSON** and paste a node array or an object with a `nodes` array. You can also upload a JSON file.
+- **Edit nodes:** Select a node on the canvas. The inspector edits the label and each configuration value directly in the graph.
+- **Save templates:** Select **Save as Template** in the inspector. Templates are listed in the library and can be dragged onto the canvas.
+- **Share templates:** Use **Export** to download template JSON or **Import** to add templates from a JSON file.
+
+All user-defined workflow types use the same generic ReactFlow renderer. The imported `type` value is node data, not a hardcoded ReactFlow component type.
+
+### Node import format
+
+Provide either an array or an object containing a `nodes` array. `position` is optional; nodes without one are laid out in a row.
+
+```json
+[
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
+    "type": "webhook",
+    "label": "API Webhook",
+    "config": {
+      "endpoint": "/api/v1",
+      "method": "POST"
     },
-  },
-])
-
+    "position": { "x": 100, "y": 100 }
+  }
+]
 ```
+
+An existing graph node shape is also accepted: node values may be inside a `data` object instead of at the top level.
+
+## Template persistence and format
+
+Templates are persisted in browser `localStorage` under the key `nexusflow_templates`. The stored value is a JSON array. Each template is a serializable object with this shape:
+
+```json
+{
+  "id": "stable-template-id",
+  "type": "webhook",
+  "label": "API Webhook",
+  "config": {
+    "endpoint": "/api/v1",
+    "method": "POST"
+  },
+  "version": 1,
+  "isReadOnly": false
+}
+```
+
+- `id` identifies the template; each canvas instance gets its own generated node ID.
+- `type`, `label`, and `config` are the defaults copied into a new node instance.
+- Saving another template with the same editable `type` updates that template and increments its version.
+- The built-in Webhook Listener and AI Transform templates are read-only.
+- Imported templates are merged by ID; templates whose IDs already exist are skipped.
+- Exported template files contain the same JSON array used for storage.
+
+Only templates persist between page reloads. Canvas nodes and edges are held in in-memory graph state and are not restored after a reload.
+
+## Checks
+
+```bash
+npm run build
+npm run lint
+```
+
+There is currently no automated test script in `package.json`.
+
+## Implementation overview
+
+- `src/store/canvas.store.ts` owns ReactFlow nodes, edges, editing, and JSON node creation.
+- `src/store/workflow.store.ts` owns template state, localStorage persistence, and template import/export.
+- `src/features/canvas/nodes/GenericNode.tsx` renders configurable node data without one component per node type.
+- `src/features/canvas/components/EditorPanel.tsx` edits the selected node.
+- `src/features/canvas/components/SidebarLibrary.tsx` lists and reuses saved templates.
